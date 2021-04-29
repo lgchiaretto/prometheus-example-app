@@ -2,9 +2,9 @@
 
 This example app serves as an example of how one can easily instrument HTTP handlers with [Prometheus][prometheus] metrics. It uses the Prometheus [go client][client-golang] to create a new Prometheus registry.
 
-Usage is simple, on any request to `/` the request will result in a `200` response code. This increments the counter for this response code. Similarly the `/err` endpoint will result in a `404` response code, therefore increments that respective counter. Duration metrics are also exposed for any request to `/`.
+Usage is simple, on any request to `/` the request will result in a `200` response code. This increments the counter for this response code. Similarly the `/err` endpoint will result in a `404` response code, therefore increments that respective counter. Duration metrics are also exposed for any request to `/`. The `/403` endpoint will result in a `403` response code, the `/500` endpoint will result in a `500` response code, the `/502` endpoint will result in a `502` response code.
 
-A Docker image is available at: `quay.io/brancz/prometheus-example-app:v0.3.0`
+A Docker image is available at: `quay.io/chiaretto/prometheus-example-app:latest`
 
 ## Deploying in a Kubernetes cluster
 
@@ -38,24 +38,27 @@ Note: with no initial incoming request, only `version` metric is reported.
 ```
 # HELP http_request_duration_seconds Duration of all HTTP requests
 # TYPE http_request_duration_seconds histogram
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.005"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.01"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.025"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.05"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.1"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.25"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.5"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="1"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="2.5"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="5"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="10"} 5
-http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="+Inf"} 5
-http_request_duration_seconds_sum{code="200",handler="found",method="get"} 0.00047495999999999997
-http_request_duration_seconds_count{code="200",handler="found",method="get"} 5
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.005"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.01"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.025"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.05"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.1"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.25"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="0.5"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="1"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="2.5"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="5"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="10"} 2
+http_request_duration_seconds_bucket{code="200",handler="found",method="get",le="+Inf"} 2
+http_request_duration_seconds_sum{code="200",handler="found",method="get"} 5.9709e-05
+http_request_duration_seconds_count{code="200",handler="found",method="get"} 2
 # HELP http_requests_total Count of all HTTP requests
 # TYPE http_requests_total counter
-http_requests_total{code="200",method="get"} 5
+http_requests_total{code="200",method="get"} 2
+http_requests_total{code="403",method="get"} 1
+http_requests_total{code="500",method="get"} 5
+http_requests_total{code="502",method="get"} 3
 # HELP version Version information about this binary
 # TYPE version gauge
-version{version="v0.3.0"} 1
+version{version="v0.4.0"} 1
 ```
