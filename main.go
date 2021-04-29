@@ -12,7 +12,7 @@ import (
 
 var (
 	appVersion string
-	version = prometheus.NewGauge(prometheus.GaugeOpts{
+	version    = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "version",
 		Help: "Version information about this binary",
 		ConstLabels: map[string]string{
@@ -51,6 +51,18 @@ func main() {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
+	forbiddenHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	})
+
+	badGatewayHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadGateway)
+	})
+
+	InternalServerErrorHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+
 	foundChain := promhttp.InstrumentHandlerDuration(
 		httpRequestDuration.MustCurryWith(prometheus.Labels{"handler": "found"}),
 		promhttp.InstrumentHandlerCounter(httpRequestsTotal, foundHandler),
@@ -58,6 +70,9 @@ func main() {
 
 	http.Handle("/", foundChain)
 	http.Handle("/err", promhttp.InstrumentHandlerCounter(httpRequestsTotal, notfoundHandler))
+	http.Handle("/403", promhttp.InstrumentHandlerCounter(httpRequestsTotal, forbiddenHandler))
+	http.Handle("/502", promhttp.InstrumentHandlerCounter(httpRequestsTotal, badGatewayHandler))
+	http.Handle("/500", promhttp.InstrumentHandlerCounter(httpRequestsTotal, InternalServerErrorHandler))
 
 	http.Handle("/metrics", promhttp.HandlerFor(r, promhttp.HandlerOpts{}))
 	log.Fatal(http.ListenAndServe(bind, nil))
